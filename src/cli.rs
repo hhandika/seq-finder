@@ -41,7 +41,7 @@ pub fn get_cli(version: &str) {
                         .default_value("_"),
                 )
                 .arg(
-                    Arg::with_name("iscsv")
+                    Arg::with_name("csv")
                         .long("csv")
                         .help("Print to csv")
                         .takes_value(false),

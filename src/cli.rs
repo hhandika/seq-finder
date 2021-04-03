@@ -39,14 +39,19 @@ pub fn get_cli(version: &str) {
                         .value_name("SEPARATOR")
                         .required(true)
                         .default_value("_"),
+                )
+                .arg(
+                    Arg::with_name("iscsv")
+                        .long("csv")
+                        .help("Print to csv")
+                        .takes_value(false),
                 ),
         )
         .get_matches();
 
-    match args.subcommand() {
-        ("find", Some(clean_matches)) => find_files(clean_matches),
-        _ => (),
-    };
+    if let ("find", Some(clean_matches)) = args.subcommand() {
+        find_files(clean_matches)
+    }
 }
 
 fn find_files(matches: &ArgMatches) {
@@ -54,8 +59,9 @@ fn find_files(matches: &ArgMatches) {
         let path = matches.value_of("dir").unwrap();
         let nword = get_words(matches);
         let sep = get_separators(matches);
+        let iscsv = matches.is_present("csv");
 
-        finder::find_cleaned_fastq(path, nword, sep);
+        finder::find_cleaned_fastq(path, nword, sep, iscsv);
     }
 }
 

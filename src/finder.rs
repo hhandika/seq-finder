@@ -1,3 +1,4 @@
+use std::env;
 use std::fs::File;
 use std::io::{LineWriter, Write};
 
@@ -5,7 +6,8 @@ use regex::Regex;
 use walkdir::WalkDir;
 
 pub fn find_cleaned_fastq(path: &str, len: usize, sep: char, iscsv: bool) {
-    let output = File::create(get_fnames(iscsv)).expect("FILE EXISTS.");
+    let save_names = get_fnames(iscsv);
+    let output = File::create(&save_names).expect("FILE EXISTS.");
     let mut line = LineWriter::new(output);
     if iscsv {
         writeln!(line, "id,path").unwrap();
@@ -29,6 +31,16 @@ pub fn find_cleaned_fastq(path: &str, len: usize, sep: char, iscsv: bool) {
                 }
             }
         });
+    print_saved_path(&save_names);
+}
+
+fn print_saved_path(save_names: &str) {
+    let path = env::current_dir().unwrap();
+    println!(
+        "Done! The result is save as {}/{}",
+        path.display(),
+        save_names
+    );
 }
 
 fn get_fnames(iscsv: bool) -> String {

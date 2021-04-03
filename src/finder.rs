@@ -37,7 +37,7 @@ pub fn find_cleaned_fastq(path: &str, len: usize, sep: char, iscsv: bool) {
 fn print_saved_path(save_names: &str) {
     let path = env::current_dir().unwrap();
     println!(
-        "Done! The result is save as {}/{}",
+        "Done! The result is saved as {}/{}",
         path.display(),
         save_names
     );
@@ -64,7 +64,7 @@ fn re_matches_lazy(fname: &str) -> bool {
 
 fn construct_id(names: &str, len: usize, sep: char) -> String {
     let words: Vec<&str> = names.split(sep).collect();
-
+    assert!(words.len() > len, "NO. OF WORDS EXCEED THE SLICES");
     let mut seqname = String::new();
 
     words[0..(len - 1)].iter().for_each(|w| {

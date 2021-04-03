@@ -1,9 +1,6 @@
-use std::path::PathBuf;
-
 use clap::{App, AppSettings, Arg, ArgMatches};
 
-use crate::io;
-use crate::runner;
+use crate::finder;
 
 pub fn get_cli(version: &str) {
     let args = App::new("seq-finder")
@@ -13,7 +10,7 @@ pub fn get_cli(version: &str) {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(
             App::new("find")
-                .about("Runs fastp")
+                .about("Find files and construct new names")
                 .arg(
                     Arg::with_name("dir")
                         .short("d")
@@ -21,37 +18,63 @@ pub fn get_cli(version: &str) {
                         .help("Inputs dir")
                         .takes_value(true)
                         .value_name("DIR")
+                        .required(true),
                 )
+                .arg(
+                    Arg::with_name("word")
+                        .short("w")
+                        .long("word")
+                        .help("Numbers of words")
+                        .takes_value(true)
+                        .value_name("NUM WORD")
+                        .required(true)
+                        .default_value("3"),
+                )
+                .arg(
+                    Arg::with_name("sep")
+                        .short("s")
+                        .long("sep")
+                        .help("Separators")
+                        .takes_value(true)
+                        .value_name("SEPARATOR")
+                        .required(true)
+                        .default_value("_"),
+                ),
         )
-        
         .get_matches();
 
     match args.subcommand() {
-        ("find", Some(clean_matches)) => run_fastp_clean(clean_matches, version),
-        ("check", Some(_)) => runner::check_fastp(),
+        ("find", Some(clean_matches)) => find_files(clean_matches),
         _ => (),
     };
 }
 
-fn run_fastp_clean(matches: &ArgMatches, version: &str) {
-    if matches.is_present("input") {
-        let path = PathBuf::from(matches.value_of("input").unwrap());
-        let mut is_id = false;
-        let mut is_rename = false;
+fn find_files(matches: &ArgMatches) {
+    if matches.is_present("dir") {
+        let path = matches.value_of("dir").unwrap();
+        let nword = get_words(matches);
+        let sep = get_separators(matches);
 
-        if matches.is_present("id") {
-            is_id = true;
-        }
+        finder::find_cleaned_fastq(path, nword, sep);
+    }
+}
 
-        if matches.is_present("rename") {
-            is_rename = true;
-        }
+fn get_words(matches: &ArgMatches) -> usize {
+    let word = matches.value_of("word");
+    match word {
+        None => panic!("Unknown numbers"),
+        Some(n) => n
+            .parse::<usize>()
+            .expect("Can't parse the input. Make sure it is an integer."),
+    }
+}
 
-        if matches.is_present("dry-run") {
-            io::dry_run(&path, is_id, is_rename);
-        } else {
-            println!("Starting fastp-runner v{}...\n", version);
-            io::process_input(&path, is_id, is_rename);
-        }
-    } 
+fn get_separators(matches: &ArgMatches) -> char {
+    let sep = matches.value_of("sep");
+    match sep {
+        None => panic!("Unknown numbers"),
+        Some(n) => n
+            .parse::<char>()
+            .expect("Can't parse the input. Make sure it is an integer."),
+    }
 }

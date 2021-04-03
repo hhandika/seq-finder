@@ -79,7 +79,7 @@ fn get_separators(matches: &ArgMatches) -> char {
     let sep = matches.value_of("sep");
     match sep {
         None => panic!("Unknown numbers"),
-        Some(n) => n
+        Some(s) => s
             .parse::<char>()
             .expect("Can't parse the input. Make sure it is an integer."),
     }

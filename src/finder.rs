@@ -64,7 +64,7 @@ fn get_fnames(iscsv: bool) -> String {
 
 fn re_matches_lazy(fname: &str) -> bool {
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"(_|-)((?i)(read|r)1)").unwrap();
+        static ref RE: Regex = Regex::new(r"(_|-)((?i)(read|r)1)(?:.*)(gz|gzip)").unwrap();
     }
 
     RE.is_match(fname)
@@ -82,4 +82,57 @@ fn construct_id(names: &str, len: usize, sep: char) -> String {
 
     seqname.push_str(words[len - 1]);
     seqname
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn regex_test() {
+        let zipped_read = "sample_buno_clean_read1.fastq.gz";
+        let unzipped_read = "sample_buno_clean_read1.fastq";
+
+        assert_eq!(true, re_matches_lazy(zipped_read));
+        assert_eq!(false, re_matches_lazy(unzipped_read));
+    }
+
+    #[test]
+    fn regex_io_test() {
+        use glob::glob;
+        use std::path::PathBuf;
+
+        let path = "test_files/*";
+        let entries = glob(path)
+            .unwrap()
+            .filter_map(|ok| ok.ok())
+            .collect::<Vec<PathBuf>>();
+
+        let mut files = Vec::new();
+        entries.iter().for_each(|e| {
+            let path = String::from(e.file_name().unwrap().to_string_lossy());
+            if re_matches_lazy(&path) {
+                files.push(e);
+            }
+        });
+
+        assert_eq!(3, files.len());
+    }
+
+    #[test]
+    fn construct_id_test() {
+        let fnames = "sample_buno_ABCD123_read1.fastq.gz";
+
+        let id = construct_id(fnames, 3, '_');
+
+        assert_eq!("sample_buno_ABCD123", id);
+    }
+
+    #[test]
+    #[should_panic]
+    fn construct_id_panic_test() {
+        let fnames = "sample_buno_ABCD123_read1.fastq.gz";
+
+        construct_id(fnames, 4, '_');
+    }
 }

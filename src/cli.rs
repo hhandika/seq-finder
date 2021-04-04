@@ -81,6 +81,6 @@ fn get_separators(matches: &ArgMatches) -> char {
         None => panic!("Unknown numbers"),
         Some(s) => s
             .parse::<char>()
-            .expect("Can't parse the input. Make sure it is an integer."),
+            .expect("Can't parse the input. Make sure it is a single character."),
     }
 }

@@ -9,11 +9,7 @@ pub fn find_cleaned_fastq(path: &str, len: usize, sep: char, iscsv: bool) {
     let save_names = get_fnames(iscsv);
     let output = File::create(&save_names).expect("FILE EXISTS.");
     let mut line = LineWriter::new(output);
-    if iscsv {
-        writeln!(line, "id,path").unwrap();
-    } else {
-        writeln!(line, "[seq]").unwrap();
-    }
+    write_header(&mut line, iscsv);
     WalkDir::new(path)
         .into_iter()
         .filter_map(|ok| ok.ok())
@@ -24,14 +20,26 @@ pub fn find_cleaned_fastq(path: &str, len: usize, sep: char, iscsv: bool) {
             if re_matches_lazy(&fname) {
                 let id = construct_id(&fname, len, sep);
                 let full_path = String::from(path.canonicalize().unwrap().to_string_lossy());
-                if iscsv {
-                    writeln!(line, "{},{}/", id, full_path).unwrap();
-                } else {
-                    writeln!(line, "{}:{}/", id, full_path).unwrap();
-                }
+                write_content(&mut line, &id, &full_path, iscsv);
             }
         });
     print_saved_path(&save_names);
+}
+
+fn write_header<W: Write>(line: &mut W, iscsv: bool) {
+    if iscsv {
+        writeln!(line, "id,path").unwrap();
+    } else {
+        writeln!(line, "[seq]").unwrap();
+    }
+}
+
+fn write_content<W: Write>(line: &mut W, id: &str, full_path: &str, iscsv: bool) {
+    if iscsv {
+        writeln!(line, "{},{}/", id, full_path).unwrap();
+    } else {
+        writeln!(line, "{}:{}/", id, full_path).unwrap();
+    }
 }
 
 fn print_saved_path(save_names: &str) {

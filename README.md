@@ -12,7 +12,7 @@ Sample Results
 
 ```{Bash}
 [seq]
-Frateromys_fratorum_ABC1234:/mnt/c/Genomics/UCEs/raw-reads-lsumz/
-Maxomys_alticola_ABC456:/mnt/c/Genomics/UCEs/raw-reads-lsumz/
-Maxomys_dollmani_XYZ123:/mnt/c/Genomics/UCEs/raw-reads-lsumz/
+Frateromys_fratorum_ABC1234:/mnt/c/Genomics/UCEs/raw-reads/
+Maxomys_alticola_ABC456:/mnt/c/Genomics/UCEs/raw-reads/
+Maxomys_dollmani_XYZ123:/mnt/c/Genomics/UCEs/raw-reads/
 ```
